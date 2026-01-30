@@ -201,7 +201,6 @@
         // "No" button logic
         let noButtonGone = false; // Flag to stop it from running if it's gone
         let noClickCount = 0;
-        let noButtonPositioned = false;
 
         const moveNoButton = () => {
             if (noButtonGone) return;
@@ -209,44 +208,20 @@
 
             const buttonRect = noButton.getBoundingClientRect();
             const padding = 16;
-            const offscreenPadding = 80;
 
             const maxX = Math.max(padding, window.innerWidth - buttonRect.width - padding);
             const maxY = Math.max(padding, window.innerHeight - buttonRect.height - padding);
 
-            const moveWithinBounds = () => {
-                const nextLeft = Math.random() * (maxX - padding) + padding;
-                const nextTop = Math.random() * (maxY - padding) + padding;
-                noButton.style.left = `${nextLeft}px`;
-                noButton.style.top = `${nextTop}px`;
-            };
+            const nextLeft = Math.random() * (maxX - padding) + padding;
+            const nextTop = Math.random() * (maxY - padding) + padding;
 
-            const moveOffscreen = () => {
-                const offscreenLeft = Math.random() > 0.5
-                    ? window.innerWidth + offscreenPadding
-                    : -buttonRect.width - offscreenPadding;
-                const offscreenTop = Math.random() > 0.5
-                    ? window.innerHeight + offscreenPadding
-                    : -buttonRect.height - offscreenPadding;
-                noButton.style.left = `${offscreenLeft}px`;
-                noButton.style.top = `${offscreenTop}px`;
-            };
+            noButton.style.position = 'fixed';
+            noButton.style.left = `${nextLeft}px`;
+            noButton.style.top = `${nextTop}px`;
 
-            if (!noButtonPositioned) {
-                noButton.style.position = 'fixed';
-                noButton.style.left = `${buttonRect.left}px`;
-                noButton.style.top = `${buttonRect.top}px`;
-                noButtonPositioned = true;
-                noButton.getBoundingClientRect();
-            }
-
-            if (noClickCount === 4) {
-                moveOffscreen();
+            if (noClickCount >= 4) {
                 noClickCount = 0;
-                return;
             }
-
-            requestAnimationFrame(moveWithinBounds);
         };
 
         noButton.addEventListener('click', moveNoButton);
