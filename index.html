@@ -200,30 +200,56 @@
 
         // "No" button logic
         let noButtonGone = false; // Flag to stop it from running if it's gone
+        let noClickCount = 0;
+        let noButtonPositioned = false;
 
-        const sendBackToPassword = () => {
-            if (noButtonGone) return; // Prevent double-clicks
-            noButtonGone = true; 
-            
-            // Hide valentine screen, show password screen
-            valentineScreen.classList.add('hidden');
-            passwordScreen.classList.remove('hidden');
+        const moveNoButton = () => {
+            if (noButtonGone) return;
+            noClickCount += 1;
 
-            // Reset password screen state
-            errorMessage.classList.add('hidden');
-            monthInput.value = '';
-            dayInput.value = '';
-            yearInput.value = '';
-            
-            // Reset the flag after a short delay so it can be clicked again
-            // if she unlocks the page again.
-            setTimeout(() => {
-                noButtonGone = false; 
-            }, 500); // 500ms debounce
+            const buttonRect = noButton.getBoundingClientRect();
+            const padding = 16;
+            const offscreenPadding = 80;
+
+            const maxX = Math.max(padding, window.innerWidth - buttonRect.width - padding);
+            const maxY = Math.max(padding, window.innerHeight - buttonRect.height - padding);
+
+            const moveWithinBounds = () => {
+                const nextLeft = Math.random() * (maxX - padding) + padding;
+                const nextTop = Math.random() * (maxY - padding) + padding;
+                noButton.style.left = `${nextLeft}px`;
+                noButton.style.top = `${nextTop}px`;
+            };
+
+            const moveOffscreen = () => {
+                const offscreenLeft = Math.random() > 0.5
+                    ? window.innerWidth + offscreenPadding
+                    : -buttonRect.width - offscreenPadding;
+                const offscreenTop = Math.random() > 0.5
+                    ? window.innerHeight + offscreenPadding
+                    : -buttonRect.height - offscreenPadding;
+                noButton.style.left = `${offscreenLeft}px`;
+                noButton.style.top = `${offscreenTop}px`;
+            };
+
+            if (!noButtonPositioned) {
+                noButton.style.position = 'fixed';
+                noButton.style.left = `${buttonRect.left}px`;
+                noButton.style.top = `${buttonRect.top}px`;
+                noButtonPositioned = true;
+                noButton.getBoundingClientRect();
+            }
+
+            if (noClickCount === 4) {
+                moveOffscreen();
+                noClickCount = 0;
+                return;
+            }
+
+            requestAnimationFrame(moveWithinBounds);
         };
 
-        // *** SIMPLIFIED LOGIC: ONLY trigger on CLICK ***
-        noButton.addEventListener('click', sendBackToPassword); 
+        noButton.addEventListener('click', moveNoButton);
 
         // "Yes" button logic
         yesButton.addEventListener('click', () => {
