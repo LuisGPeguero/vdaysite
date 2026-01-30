@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Message For You</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Use Inter font family */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Add a subtle heart-themed background to the password screen */
+        .password-screen-bg {
+            background-color: #fce7f3; /* pink-100 */
+            background-image:
+                radial-gradient(circle at 100% 100%, transparent 10px, #f472b6 10px, #f472b6 12px, transparent 12px),
+                radial-gradient(circle at 0 100%, transparent 10px, #f472b6 10px, #f472b6 12px, transparent 12px),
+                radial-gradient(circle at 100% 0, transparent 10px, #f472b6 10px, #f472b6 12px, transparent 12px),
+                radial-gradient(circle at 0 0, transparent 10px, #f472b6 10px, #f472b6 12px, transparent 12px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px, 20px 0, 0 20px;
+        }
+        /* Style for the "No" button to transition smoothly */
+        #no-button {
+            transition: all 0.3s ease-in-out;
+            /* No more position: absolute! Will be set by JS on first move. */
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+
+    <!-- Password Screen -->
+    <div id="password-screen" class="password-screen-bg min-h-screen w-full flex items-center justify-center p-4">
+        <div class="bg-white p-8 sm:p-10 rounded-2xl shadow-xl w-full max-w-md text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-pink-600 mb-4">Hi Love! ❤️</h1>
+            <p class="text-gray-700 text-lg mb-6">This is just for you. Please enter your birthday to unlock it!</p>
+            
+            <!-- Birthday Input Fields -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                <input
+                    type="text"
+                    id="month-input"
+                    placeholder="Month (MM)"
+                    maxlength="2"
+                    class="w-full p-3 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition"
+                />
+                <input
+                    type="text"
+                    id="day-input"
+                    placeholder="Day (DD)"
+                    maxlength="2"
+                    class="w-full p-3 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition"
+                />
+                <input
+                    type="text"
+                    id="year-input"
+                    placeholder="Year (YYYY)"
+                    maxlength="4"
+                    class="w-full p-3 text-center text-lg border-2 border-gray-300 rounded-lg focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition"
+                />
+            </div>
+            
+            <!-- Error Message -->
+            <p id="error-message" class="text-red-500 font-semibold mb-4 hidden">
+                That's not it, silly! Try again. (Hint: 06/02/2003)
+            </p>
+            
+            <!-- Unlock Button -->
+            <button id="unlock-button" class="w-full bg-pink-500 text-white text-xl font-bold py-4 rounded-lg shadow-lg hover:bg-pink-600 transition-transform transform hover:scale-105">
+                Unlock
+            </button>
+        </div>
+    </div>
+
+    <!-- Valentine's Screen (Hidden by default) -->
+    <div id="valentine-screen" class="bg-red-400 min-h-screen w-full flex flex-col items-center justify-center p-4 text-white text-center relative overflow-hidden hidden">
+        
+        <!-- Hearts animation -->
+        <div class="absolute inset-0 z-0 opacity-50"> 
+            <span class="absolute text-4xl heart-fall" style="animation: fall 25s linear infinite; left: 10%;">♡</span>
+            <span class="absolute text-2xl heart-fall" style="animation: fall 27s linear infinite 2s; left: 30%;">♡</span>
+            <span class="absolute text-5xl heart-fall" style="animation: fall 23s linear infinite 1s; left: 50%;">♡</span>
+            <span class="absolute text-3xl heart-fall" style="animation: fall 26s linear infinite 3s; left: 70%;">♡</span>
+            <span class="absolute text-2xl heart-fall" style="animation: fall 24s linear infinite 4s; left: 90%;">♡</span>
+            <span class="absolute text-4xl heart-fall" style="animation: fall 28s linear infinite 5s; left: 5%;">♡</span>
+            <span class="absolute text-3xl heart-fall" style="animation: fall 22s linear infinite 6s; left: 85%;">♡</span>
+        </div>
+        
+        <!-- Main Content -->
+        <div id="main-content" class="z-10 relative flex flex-col items-center">
+            <img 
+                src="https://placehold.co/300x300/f87171/ffffff?text=Imagine+your+cutest+photo+here!&font=inter" 
+                alt="Cute placeholder" 
+                class="w-48 h-48 sm:w-64 sm:h-64 rounded-full object-cover border-8 border-white shadow-2xl mb-8"
+                onerror="this.src='https://placehold.co/300x300/f87171/ffffff?text=You+can+put+a+cute+GIF+here!&font=inter'"
+            >
+            
+            <h1 id="main-question" class="text-4xl sm:text-6xl md:text-7xl font-black mb-10 text-shadow-lg">
+                Will you be my Valentine?
+            </h1>
+            
+            <!-- Container for buttons, relative positioning -->
+            <!-- This container will now correctly center both buttons side-by-side -->
+            <div id="buttons-container" class="relative w-full h-24 flex justify-center items-center gap-6">
+                <!-- YES Button -->
+                <button id="yes-button" class="bg-green-500 text-white font-bold text-2xl py-4 px-12 rounded-lg shadow-lg transform hover:scale-110 transition-transform z-20">
+                    YES! 🥰
+                </button>
+                
+                <!-- NO Button -->
+                <button id="no-button" class="bg-white text-red-600 font-bold text-lg py-2 px-6 rounded-lg shadow-lg transform hover:bg-gray-200 z-10">
+                    no 😢
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSS for hearts animation -->
+    <style>
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateZ(0); opacity: 1; }
+            100% { transform: translateY(110vh) translateZ(0); opacity: 0; }
+        }
+        .text-shadow-lg {
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .heart-fall {
+            will-change: transform, opacity;
+        }
+        #letter-content {
+            will-change: transform;
+        }
+    </style>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Get elements from the DOM
+        const passwordScreen = document.getElementById('password-screen');
+        const valentineScreen = document.getElementById('valentine-screen');
+        
+        const monthInput = document.getElementById('month-input');
+        const dayInput = document.getElementById('day-input');
+        const yearInput = document.getElementById('year-input');
+        const unlockButton = document.getElementById('unlock-button');
+        const errorMessage = document.getElementById('error-message');
+        
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+        const mainContent = document.getElementById('main-content');
+        const mainQuestion = document.getElementById('main-question');
+        const buttonsContainer = document.getElementById('buttons-container');
+
+        // Correct birthday
+        const CORRECT_MONTH = '06';
+        const CORRECT_DAY = '02';
+        const CORRECT_YEAR = '2003';
+
+        // Add click listener to the unlock button
+        unlockButton.addEventListener('click', () => {
+            const month = monthInput.value.trim();
+            const day = dayInput.value.trim();
+            const year = yearInput.value.trim();
+
+            if (month === CORRECT_MONTH && day === CORRECT_DAY && year === CORRECT_YEAR) {
+                passwordScreen.classList.add('hidden');
+                valentineScreen.classList.remove('hidden');
+
+                // No more JS position setting! Flexbox handles it.
+                
+            } else {
+                errorMessage.classList.remove('hidden');
+                passwordScreen.querySelector('div').classList.add('animate-shake');
+                setTimeout(() => {
+                    passwordScreen.querySelector('div').classList.remove('animate-shake');
+                }, 500);
+            }
+        });
+
+        // Add Tailwind's shake animation for the error
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                20%, 40%, 60%, 80% { transform: translateX(10px); }
+            }
+            .animate-shake {
+                animation: shake 0.5s ease-in-out;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // --- Valentine's Screen Logic ---
+
+        // "No" button logic
+        let noButtonGone = false; // Flag to stop it from running if it's gone
+
+        const sendBackToPassword = () => {
+            if (noButtonGone) return; // Prevent double-clicks
+            noButtonGone = true; 
+            
+            // Hide valentine screen, show password screen
+            valentineScreen.classList.add('hidden');
+            passwordScreen.classList.remove('hidden');
+
+            // Reset password screen state
+            errorMessage.classList.add('hidden');
+            monthInput.value = '';
+            dayInput.value = '';
+            yearInput.value = '';
+            
+            // Reset the flag after a short delay so it can be clicked again
+            // if she unlocks the page again.
+            setTimeout(() => {
+                noButtonGone = false; 
+            }, 500); // 500ms debounce
+        };
+
+        // *** SIMPLIFIED LOGIC: ONLY trigger on CLICK ***
+        noButton.addEventListener('click', sendBackToPassword); 
+
+        // "Yes" button logic
+        yesButton.addEventListener('click', () => {
+            // Stop the 'no' button from doing anything
+            noButtonGone = true;
+            noButton.classList.add('hidden'); // Hide it
+
+            // Show a success message and ask about the gift
+            mainContent.innerHTML = `
+                <h1 class="text-4xl sm:text-6xl font-black mb-6 text-shadow-lg">YAY!!! 🎉</h1>
+                <p class="text-2xl sm:text-3xl font-bold mb-8">You made me the happiest person alive!</p>
+                <img 
+                    src="https://placehold.co/300x300/a7f3d0/166534?text=I'm+so+happy!+<3&font=inter" 
+                    alt="Happy placeholder" 
+                    class="w-64 h-64 rounded-full object-cover border-8 border-white shadow-2xl mb-8"
+                    onerror="this.src='https://placehold.co/300x300/a7f3d0/166534?text=I'm+so+happy!+<3&font=inter'"
+                >
+                <p class="text-2xl sm:text-3xl font-bold mb-8">As my new Valentine, you get one extra gift...<br>Want to open it?</p>
+                <button 
+                    id="open-gift-button" 
+                    class="bg-pink-500 text-white font-bold text-2xl py-4 px-12 rounded-lg shadow-lg transform hover:scale-110 transition-transform"
+                >
+                    Yes, show me! 🎁
+                </button>
+            `;
+
+            // Add listener for the new gift button
+            document.getElementById('open-gift-button').addEventListener('click', () => {
+                // Show the self-scrolling love letter
+                mainContent.innerHTML = `
+                    <h1 class="text-4xl sm:text-5xl font-black mb-6 text-shadow-lg">For You... ❤️</h1>
+                    <div 
+                        id="letter-container" 
+                        class="w-full max-w-lg h-96 bg-white/10 rounded-2xl border-4 border-white shadow-xl overflow-hidden p-8 text-left text-lg leading-relaxed"
+                    >
+                        <div id="letter-content" class="w-full">
+                            <p class="font-bold text-2xl mb-4">My Dearest,</p>
+                            <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            <p class="mb-4">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                            <p class="mb-4">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                            <p class="mb-4">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...</p>
+                            <p class="mb-4">...sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?</p>
+                            <p class="mb-4">Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+                            <p class="mb-4">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt animi, id est laborum et dolorum fuga.</p>
+
+                            <p class="mb-4">Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.</p>
+                            <p class="font-bold text-2xl mt-8 mb-4 text-center">Forever and always,</p>
+                            <p class="font-bold text-3xl text-center">[Your Name]</p>
+                            
+                            <!-- Extra text to ensure scrolling -->
+                            <p class="mb-4 mt-12">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+Read more
+                        </div>
+                    </div>
+                `;
+
+                // --- Smoother Auto-Scrolling Logic ---
+                const letterContainer = document.getElementById('letter-container');
+                const letterContent = document.getElementById('letter-content');
+                let animationFrameId = null; 
+
+                requestAnimationFrame(() => {
+                    const letterContainerHeight = letterContainer.clientHeight;
+                    const letterContentHeight = letterContent.scrollHeight;
+                    
+                    const scrollSpeed = 15; // Pixels per second
+                    let lastTime = 0;
+                    let scrollAmount = 0;
+
+                    function autoScroll(timestamp) {
+                        if (!lastTime) {
+                            lastTime = timestamp;
+                        }
+                        
+                        const deltaTime = (timestamp - lastTime) / 1000; // Time in seconds
+                        lastTime = timestamp;
+
+                        scrollAmount += scrollSpeed * deltaTime;
+
+                        // Check if we've scrolled past the end
+                        if (scrollAmount >= (letterContentHeight - letterContainerHeight)) {
+                            scrollAmount = 0; // Reset to the top
+                        }
+                        
+                        // Use transform for subpixel rendering
+                        letterContent.style.transform = `translateY(-${scrollAmount}px) translateZ(0)`;
+                        
+                        animationFrameId = requestAnimationFrame(autoScroll);
+                    }
+
+                    animationFrameId = requestAnimationFrame(autoScroll);
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>
+
